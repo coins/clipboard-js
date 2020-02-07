@@ -1,33 +1,38 @@
-export class Player {
+if (!navigator.clipboard) {
+    navigator.clipboard = {}
 
-    play(song) {
-        this.currentlyPlayingSong = song;
-        this.isPlaying = true;
+    navigator.clipboard.writeText = text => {
+
+        // A <span> contains the text to copy
+        const span = document.createElement('span');
+        span.textContent = text;
+        span.style.whiteSpace = 'pre'; // Preserve consecutive spaces and newlines
+
+        // Paint the span outside the viewport
+        span.style.position = 'absolute';
+        span.style.left = '-9999px';
+        span.style.top = '-9999px';
+
+        const win = window;
+        const selection = win.getSelection();
+        win.document.body.appendChild(span);
+
+        const range = win.document.createRange();
+        selection.removeAllRanges();
+        range.selectNode(span);
+        selection.addRange(range);
+
+        let success = false;
+        try {
+            success = win.document.execCommand('copy');
+        } catch (err) {}
+
+        selection.removeAllRanges();
+        span.remove();
+
+        return success;
     }
-
-    pause() {
-        this.isPlaying = false;
-    }
-
-    resume() {
-        if (this.isPlaying) {
-            throw new Error("song is already playing");
-        }
-
-        this.isPlaying = true;
-    }
-
-    makeFavorite() {
-        this.currentlyPlayingSong.persistFavoriteStatus(true);
-    }
-
 }
 
-export class Song {
 
-    persistFavoriteStatus(value) {
-        // something complicated
-        throw new Error("not yet implemented");
-    }
-
-}
+// navigator.clipboard.readText()
